@@ -58,19 +58,22 @@ python -X utf8 -m pytest tests -q --basetemp=outputs/pytest_01
 - [离线 Demo](demo/README.md)与[演示讲稿](docs/DEMO_SCRIPT.md)。
 - [E5受控对照](docs/PATH_SAFETY_E5_HANDOFF.md)、[多种子与较晚故障实验](docs/IMPROVEMENT_DEMO_HANDOFF.md)、[原子写入修复](docs/ATOMIC_WRITE_FIX_HANDOFF.md)。
 - [基线交接](BASELINE_HANDOFF.md)、[实验记录](EXPERIMENTS.md)、[进度记录](PROGRESS.md)、[团队待确认项](docs/team_questions.md)。
--当前源码修复基线为 `0d6db405`，算法核心沿用既有候选；源码包精确来源以 `MANIFEST.source_commit` 为准。2026年10月24日固定数据冷生产、接入独立评价、演示与报告交付已完成本机审计，详见[当前状态](docs/CURRENT_STATUS.md)。用户已接管1/3/4号职责，未宣称外部成员或异机确认。第一轮原 `BLOCKED / strict FAIL` 与特定版本只读消费批准分别保留。旧额外复评继续[BLOCKED](docs/optional_evaluator.md)。
 
-历史E5让两种方法共享同一初始计划、事件、候选和历史，基线172.4分、改进182.0分，收益9.6分；覆盖均为56/60、可执行56/56，原始TLE逐秒独立检查零违例。结论限于该冻结场景。E3/E4比较的是完整流程，其不同初始计划下的收益不能当作纯重规划收益。
+截至2026年10月26日，本机实验已完成第八轮并通过独立审计，详见[当前状态](docs/CURRENT_STATUS.md)和[实验记录](EXPERIMENTS.md)。最近实验冻结的工程版本为 `b91e59a`，程序交付回归修复来源为 `0d6db405`；`b0eb3b5`、`5abd28c`是历史算法与接入版本。后续仅文档提交可有不同HEAD，源码包精确来源仍以 `MANIFEST.source_commit` 为准。
 
-当前稳定算法候选为 `b0eb3b5`，接入源码为 `5abd28c`；源码包精确来源以 `MANIFEST.source_commit` 为准。实际1号交付、3号本人确认仍待外部完成。旧额外复评继续 [BLOCKED](docs/optional_evaluator.md)。
+第八轮在两个与封存历史排除清单及彼此不重叠的60目标样本上，完成20份计划、20次原CLI评价、20份独立规则检查与20份原始TLE逐秒几何报告。各方案覆盖58/60及58/58，零违例；固定起点下故障方法分差为5.6至12.4分，无故障主动重排分差为5.6至11.2分。方法差距在无故障时已经存在，不能将全部分差称为故障专门收益。该轮没有非空中断片段，不能据此声称新增了中断片段的逐秒几何实测。
+
+另有待处理的产品质量问题：baseline在两个改进初始计划起点的无故障主动重排后，相对冻结原计划下降6.8和11.2分。现有improved只对内部重跑baseline设回退，不提供相对冻结原计划的不退化保证；实验检查PASS不等于该保证已实现。
+
+历史E5同起点比较为172.4对182.0分，方法分差9.6分；E3/E4不同初始计划的结果属于整套流程比较。第四至八轮保留各自批次、控制与验证范围，不把共享控制或相关起点当独立随机重复。用户已同机接管原1/3/4号职责，未宣称其他成员、异机或设备现场验收。第一轮原 `BLOCKED / strict FAIL` 与特定版本只读消费批准分别保留；旧额外复评继续[BLOCKED](docs/optional_evaluator.md)。现有离线Demo和Word/PDF仍属历史批次，未随本次文档同步纳入第六至八轮。
 
 ## 本机真实 TLE 实验
 
 以下命令仅适用于已有忽略目录 `prototype_v1/data_raw` 与原冻结样本的本机工程。新克隆应先运行合成示例；旧 TLE 全量移机未验证。
 
 ```powershell
-Set-Location 'G:\bd-fmb'
-$py = 'D:\conda_envs\bd-fmb\python.exe'
+# 在本机项目根、已激活的既有环境中执行。
+$py = 'python'
 & $py -X utf8 smoke_test.py --config configs/smoke.yaml --method baseline --out outputs/baseline_01
 if ($LASTEXITCODE -ne 0) { throw '规划未通过' }
 & $py -X utf8 smoke_test.py --check-only --source outputs/baseline_01 --out outputs/recheck_01
@@ -81,4 +84,4 @@ if ($LASTEXITCODE -ne 0) { throw '复查未通过' }
 
 ## 验证范围
 
-每目标一次成功、中断零分、120/240秒离散得分、海拔近似椭球高是当前测试口径。几何仰角不代表完整光学可观测；标准窗口接入只检查供应窗口内的调度约束，不认证夜间、受光、天气等声明。完整光学条件及正式比赛评分仍未验证，正式规则和两套评分差异待团队确认。
+每目标一次成功、中断零分、120/240秒离散得分、海拔近似椭球高是当前测试口径。几何仰角不代表完整光学可观测；标准窗口接入只检查供应窗口内的调度约束，不认证夜间、受光、天气等声明。第八轮仅增加同一原料、同一天的两个60目标样本验证；跨日期、扩大规模、完整光学及设备条件、正式比赛评分与接收环境发布仍未验证。正式规则和两套评分差异待明确。
