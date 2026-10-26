@@ -1,14 +1,14 @@
 # 给 1 号、3 号的基线交接
 
-这份交付可运行贪心基线、独立评价和站点故障重规划。真实数据留在本地；Git 仓库只含源码、配置、文档与明确标注的合成示例。未收到明确标记的 1 号数据，未完成与 3 号的外部接口确认，待确认项见 [清单](docs/team_questions.md)。
+这份文档保留原基线交接入口及当时背景。当前已完成至第八轮本机实验与独立审计，最新状态以[当前状态](docs/CURRENT_STATUS.md)和[实验记录](EXPERIMENTS.md)为准。用户已同机接管原1/3/4号职责；原“未收到1号数据、待3号外部确认”属于接管前快照，不作为当前等待条件，也不代表其他成员或异机验收完成。正式规则和接收环境问题见[清单](docs/team_questions.md)。真实数据留在本地，仓库只含源码、配置、文档与明确标注的合成示例。
 
 ## 环境与启动
 
 已有环境直接使用，无需重建或升级。下面在 PowerShell 执行：
 
 ```powershell
-Set-Location G:\bd-fmb
-$py = 'D:\conda_envs\bd-fmb\python.exe'
+# 在本机项目根、已激活的既有环境中执行。
+$py = 'python'
 & $py -X utf8 smoke_test.py --config configs/smoke.yaml --method baseline --out outputs/baseline_delivery_01
 ```
 
