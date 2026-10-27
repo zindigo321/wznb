@@ -31,8 +31,19 @@ def main():
         if name == 'evaluate':
             p.add_argument('--tasks', required=True); p.add_argument('--initial-plan'); p.add_argument('--event'); p.add_argument('--interrupted')
         if name in ('synthetic','windows'): p.add_argument('--fault-event', help='Explicit event for planning, distinct from evaluate --event')
-        if name == 'recheck': p.add_argument('--source', required=True)
+        if name == 'recheck': p.add_argument('--source', required=True); p.add_argument('--source-sha256')
+    from planner.no_fault_cli import decimal_decision
+    for name in ('no-fault','evaluate-no-fault'):
+        p = sub.add_parser(name)
+        p.add_argument('--source',required=True); p.add_argument('--source-sha256',required=True)
+        p.add_argument('--decision-s',type=decimal_decision,required=True); p.add_argument('--out',required=True)
+        if name=='no-fault': p.add_argument('--method',choices=['baseline','improved'],required=True)
+        else: p.add_argument('--tasks',required=True)
     a = parser.parse_args()
+    if a.mode in ('no-fault','evaluate-no-fault') or (a.mode=='recheck' and
+            (a.source_sha256 is not None or (Path(a.source)/'run.json').exists())):
+        from planner.no_fault_cli import workflow
+        return workflow(a)
     try:
         if not 1 < a.budget_seconds <= 300: raise ValueError('workflow budget must be >1 and <=300 seconds')
         out = Path(a.out).resolve()

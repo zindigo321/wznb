@@ -225,3 +225,9 @@ class IndependentValidator:
                     independent_module='IndependentValidator; authoritative input priority/time; no planner checks called',
                     occupancy_convention='[start,end); geometry includes both endpoints and every internal integer second')
         return report
+
+    @staticmethod
+    def check_no_fault(context, original_plan, candidates, decision_s, tasks, *, require_guard=True):
+        """Native history evaluation from authority + original plan, never prepared policy state."""
+        from .no_fault_rules import native_report
+        return native_report(context, original_plan, candidates, decision_s, tasks, require_guard)

@@ -127,3 +127,36 @@ def read_standard_tasks(path, records, windows, day):
         if r.get('planned_end_utc'): task['planned_end_utc']=r['planned_end_utc']
         result.append(task)
     return result
+
+
+def read_complete_tasks(path):
+    """Strict full-task schema for no-fault v1; preserve raw rows and claimed scores."""
+    from decimal import Decimal, InvalidOperation
+    from .common import TASK_FIELDS
+    path = Path(path)
+    with path.open(encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        fields = reader.fieldnames
+        if (not fields or len(fields) != len(set(fields)) or
+                set(fields) not in (set(TASK_FIELDS), set(TASK_FIELDS)|{'target_id'})):
+            raise ValueError('complete task CSV requires unique, exact full-task columns')
+        raw = list(reader)
+    tasks = []
+    for source in raw:
+        if None in source or any(v is None or v == '' for v in source.values()):
+            raise ValueError('complete task CSV: missing value or extra cells')
+        row = {k: source[k] for k in TASK_FIELDS}
+        for key in ('satnum','station_id','start_s','end_s','duration_s','points_int'):
+            row[key] = integer(row[key], key, 1 if key in ('satnum','station_id') else 0)
+        if 'target_id' in source and integer(source['target_id'],'target_id',1) != row['satnum']:
+            raise ValueError('target_id/satnum mismatch')
+        parse_utc(row['start_utc']); parse_utc(row['end_utc'])
+        try:
+            score = Decimal(row['score'])
+        except InvalidOperation as error:
+            raise ValueError('invalid decimal score') from error
+        if not score.is_finite() or score != Decimal(row['points_int'])/5:
+            raise ValueError('claimed score/points mismatch')
+        row['score'] = float(score)
+        tasks.append(row)
+    return fields, raw, tasks

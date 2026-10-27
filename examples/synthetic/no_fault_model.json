@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "kind": "no_fault_model",
+  "durations_seconds": [
+    120,
+    240
+  ],
+  "weights": {
+    "high": 5,
+    "medium": 3,
+    "low": 2
+  },
+  "switch_seconds": 30,
+  "horizon_start_utc": "2000-01-01T00:00:00Z",
+  "horizon_end_utc": "2000-01-01T01:00:00Z",
+  "horizon_seconds": 3600,
+  "station_ids": [
+    1,
+    2,
+    3
+  ],
+  "elevation_degrees": [
+    10,
+    85
+  ]
+}
