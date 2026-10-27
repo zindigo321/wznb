@@ -44,7 +44,7 @@ class WindowsJob:
             self.handle=None
 
 
-def run_guarded(command, *, timeout, log_path, cwd=None):
+def run_guarded(command, *, timeout, log_path, cwd=None, deadline_monotonic=None):
     started=time.perf_counter()
     job=WindowsJob() if os.name=='nt' else None
     process=None
@@ -56,7 +56,8 @@ def run_guarded(command, *, timeout, log_path, cwd=None):
                 start_new_session=not bool(job))
             if job: job.attach_and_resume(process)
             try:
-                code=process.wait(timeout=timeout)
+                wait_seconds=timeout if deadline_monotonic is None else max(0,min(timeout,deadline_monotonic-time.monotonic()))
+                code=process.wait(timeout=wait_seconds)
             except subprocess.TimeoutExpired:
                 timed_out=True
                 if job: job.close()

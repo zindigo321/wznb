@@ -179,7 +179,12 @@ def run(config, out, clock):
     return 0 if passed else 2
 
 
-def recheck(source, out, clock):
+def recheck(source, out, clock, source_sha256=None):
+    # Native schema dispatch precedes legacy config/fault-specific field reads.
+    if (Path(source)/'run.json').exists():
+        from .no_fault import recheck as native_recheck
+        return native_recheck(source, source_sha256, out)
+
     before=tree_hashes(source)
     manifest=json.loads((source/'evidence_manifest.json').read_text(encoding='utf-8'))
     altered=[name for name,h in manifest.items() if before.get(name)!=h]
@@ -232,3 +237,16 @@ def evaluate(config,out,clock,tasks_path,initial_path=None,event_path=None,inter
     report=validator.check(tasks,fragments,event,original_plan=original)
     json_write(out/'evaluation.json',report)
     return 0 if report['status']=='PASS' else 2
+
+
+def run_no_fault(source, expected_sha256, decision_s, method, out, remaining_seconds):
+    from .no_fault import produce
+    return produce(source, expected_sha256, decision_s, method, out, remaining_seconds)
+
+def evaluate_no_fault(source, expected_sha256, decision_s, tasks, out):
+    from .no_fault import evaluate
+    return evaluate(source, expected_sha256, decision_s, tasks, out)
+
+def recheck_no_fault(source, expected_sha256, out):
+    from .no_fault import recheck as native_recheck
+    return native_recheck(source, expected_sha256, out)
